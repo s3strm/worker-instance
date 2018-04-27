@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+PROJECT_DIR="$(dirname $0)/../"
+IMDB_ID=$1
+FFPROBE_TXT="${PROJECT_DIR}/outgoing/${IMDB_ID}/ffprobe.txt"
+OMDB_JSON="${PROJECT_DIR}/outgoing/${IMDB_ID}/omdb.json"
+
+[[ -f ${FFPROBE_TXT} ]] || exit 1
+[[ -f ${OMDB_JSON} ]] || exit 1
+
+TITLE=$(jq -r .Title ${OMDB_JSON})
+YEAR="$(jq -r .Year ${OMDB_JSON})"
+RUNTIME="$(jq -r .Runtime ${OMDB_JSON})"
+THUMB="http://s3-region.amazonaws.com/bucket/${IMDB_ID}/poster.jpg"
+RATING="$(jq -r .imdbRating ${OMDB_JSON})"
+PLOT="$(jq -r .Plot ${OMDB_JSON})"
+GENRE=$(
+  jq -r .Genre ${OMDB_JSON} \
+    | tr ',' '\n' \
+    | sed 's/^ //' \
+    | awk '{ print "<genre>"$0"</genre>" }'
+)
+DIRECTOR=$(
+  jq -r .Director ${OMDB_JSON} \
+    | tr ',' '\n' \
+    | sed 's/^ //' \
+    | awk '{ print "<director>"$0"</director>" }'
+)
+
+ACTOR=$(
+  jq -r .Actors ${OMDB_JSON} \
+    | tr ',' '\n' \
+    | sed 's/^ //' \
+    | awk '{ print "<actor><name>"$0"</name></actor>" }'
+)
+MPAA="$(jq -r .Rated ${OMDB_JSON})"
+WIDTH=$(awk -F= '/^width=/ { print $2 }' ${FFPROBE_TXT})
+HEIGHT=$(awk -F= '/^height=/ { print $2 }' ${FFPROBE_TXT})
+DURATION=$(awk -F= '/^duration=/ { print int($2/60) }' ${FFPROBE_TXT} | head -n1)
+
+
+cat <<EOF | envsubst
+  <movie>
+    <title>${TITLE}</title>
+    <year>${YEAR}</year>
+    <runtime>${RUNTIME}</runtime>
+    <id>${IMDB_ID}</id>
+    <thumb>${THUMB}</thumb>
+    <rating>${RATING}</rating>
+    <plot>${PLOT}</plot>
+    ${GENRE}
+    ${DIRECTOR}
+    ${ACTOR}
+    <mpaa>${MPAA}</mpaa>
+    <fileinfo>
+      <streamdetails>
+        <video>
+          <width>${WIDTH}</width>
+          <height>${HEIGHT}</height>
+          <duration>${DURATION}</duration>
+        </video>
+      </streamdetails>
+    </fileinfo>
+  </movie>
+EOF

@@ -15,7 +15,7 @@ for f in ${FILES}; do
     get ${FTP_PATH}${f};
     rm ${FTP_PATH}${f};
   "
-  mv "$f" "${INCOMING_DIR}"
+  mv "$f" "${ROOT_DIR}/incoming"
 done
 
 cd /

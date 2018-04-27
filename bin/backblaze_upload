@@ -2,11 +2,15 @@
 ROOT_DIR="$(dirname $0)/../"
 source "${ROOT_DIR}/etc/settings"
 
+help() {
+  echo "$0 <file> <key> <mime_type>"
+}
+
 upload() {
   local FILE=$1
-  local MIME_TYPE="video/mp4"
+  local KEY=$2
+  local MIME_TYPE=$3
   local SHA=$(shasum "${FILE}" | awk '{ print $1 }')
-  local IMDB_ID=$(basename ${FILE} .mp4)
 
   local ACCOUNT_AUTHORIZATION_RESPONSE=$(
     curl \
@@ -29,7 +33,7 @@ upload() {
 
   curl                                                \
       -H "Authorization: $UPLOAD_AUTHORIZATION_TOKEN" \
-      -H "X-Bz-File-Name: ${IMDB_ID}/video.mp4"       \
+      -H "X-Bz-File-Name: ${KEY}"                     \
       -H "Content-Type: ${MIME_TYPE}"                 \
       -H "X-Bz-Content-Sha1: ${SHA}"                  \
       -H "X-Bz-Info-Author: unknown"                  \
@@ -37,6 +41,8 @@ upload() {
       ${UPLOAD_URL}
 }
 
-for f in ${INCOMING_DIR}/*.mp4; do
-  upload "$f" && rm "$f"
-done
+[[ $# -ne 3 ]] && echo "invalid arguments" && exit 1
+[[ ! -f $1 ]] && echo "file not found" && exit 1
+[[ ! $3 =~ ^[a-z0-9]+/[a-z0-9]+$ ]] && echo "invalid mimetype" && exit 1
+
+upload $@

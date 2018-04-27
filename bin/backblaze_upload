@@ -41,8 +41,14 @@ upload() {
       ${UPLOAD_URL}
 }
 
-[[ $# -ne 3 ]] && echo "invalid arguments" && exit 1
+[[ $# -ne 2 ]] && echo "invalid arguments" && exit 1
 [[ ! -f $1 ]] && echo "file not found" && exit 1
-[[ ! $3 =~ ^[a-z0-9]+/[a-z0-9]+$ ]] && echo "invalid mimetype" && exit 1
 
-upload $@
+case $(echo $1 | grep -o '\..*$') in
+  ".jpg")   mimetype="image/jpeg" ;;
+  ".mp4")   mimetype="video/mp4" ;;
+  ".json")  mimetype="application/json" ;;
+  ".nfo")   mimetype="application/xml" ;;
+esac
+
+upload $@ ${mimetype}

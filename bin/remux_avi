@@ -1,0 +1,19 @@
+#!/usr/bin/env bash -e
+export PATH="/usr/local/bin:${PATH}"
+EXT=$(echo $0 | cut -d_ -f2)
+
+remux() {
+  local FILE=$1
+  local IMDB_ID=$(basename ${FILE} .${EXT})
+  local OUTPUT_FILE="${INCOMING_DIR}/${IMDB_ID}.mp4"
+
+  ffmpeg -y             \
+    -fflags +genpts     \
+    -i "${INPUT_FILE}"  \
+    -c copy             \
+    "${OUTPUT_FILE}"
+}
+
+for f in ${INCOMING_DIR}/*.${EXT}; do
+  remux "$f" && rm "$f"
+done

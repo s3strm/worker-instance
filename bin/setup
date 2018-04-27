@@ -4,11 +4,20 @@ source "${ROOT_DIR}/etc/settings"
 
 mkdir -p "${INCOMING_DIR}"
 
-###############################################################################
+### PACKAGES ##################################################################
 PACKAGES=(
   jq
   lftp
 )
 apt-get update
 apt-get install -y ${PACKAGES[@]}
-###############################################################################
+
+### FFMPEG ####################################################################
+wget \
+  https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz \
+  -O /tmp/ffmpeg.tar.xz
+cd /tmp/
+tar xvf /tmp/ffmpeg.tar.xz
+cp /tmp/ffmpeg*/ffmpeg /usr/local/bin/
+cp /tmp/ffmpeg*/ffprobe /usr/local/bin/
+

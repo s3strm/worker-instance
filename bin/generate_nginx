@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+ROOT_DIR="$(dirname $0)/../"
+source "${ROOT_DIR}/etc/settings"
+
+ACCOUNT_AUTHORIZATION_RESPONSE=$(
+curl \
+  https://api.backblazeb2.com/b2api/v1/b2_authorize_account \
+  -u "${BACKBLAZE_ACCOUNT_ID}:${BACKBLAZE_APPLICATION_KEY}" \
+  2> /dev/null
+)
+
+export API_URL=$(echo ${ACCOUNT_AUTHORIZATION_RESPONSE} | jq -r .apiUrl)
+export ACCOUNT_AUTHORIZATION_TOKEN=$(echo ${ACCOUNT_AUTHORIZATION_RESPONSE} | jq -r .authorizationToken)
+
+cat ${ROOT_DIR}/etc/nginx.conf.template | envsubst

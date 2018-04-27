@@ -2,8 +2,6 @@
 ROOT_DIR="$(dirname $0)/../"
 source "${ROOT_DIR}/etc/settings"
 
-mkdir -p "${INCOMING_DIR}"
-
 ### PACKAGES ##################################################################
 PACKAGES=(
   jq
@@ -20,4 +18,3 @@ cd /tmp/
 tar xvf /tmp/ffmpeg.tar.xz
 cp /tmp/ffmpeg*/ffmpeg /usr/local/bin/
 cp /tmp/ffmpeg*/ffprobe /usr/local/bin/
-

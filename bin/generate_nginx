@@ -9,6 +9,7 @@ curl \
   2> /dev/null
 )
 
+export BACKBLAZE_MOVIE_BUCKET
 export API_URL=$(echo ${ACCOUNT_AUTHORIZATION_RESPONSE} | jq -r .apiUrl)
 export ACCOUNT_AUTHORIZATION_TOKEN=$(echo ${ACCOUNT_AUTHORIZATION_RESPONSE} | jq -r .authorizationToken)
 

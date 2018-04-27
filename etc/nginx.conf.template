@@ -8,6 +8,6 @@ server {
     auth_basic "Private Area";
     auth_basic_user_file /etc/nginx/s3strm_passwd;
     proxy_set_header Authorization "${ACCOUNT_AUTHORIZATION_TOKEN}";
-    proxy_pass https://${API_URL};
+    proxy_pass https://${API_URL}:443;
   }
 }

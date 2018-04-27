@@ -4,6 +4,7 @@ source "${ROOT_DIR}/etc/settings"
 
 ### PACKAGES ##################################################################
 PACKAGES=(
+  awscli
   jq
   lftp
 )

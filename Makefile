@@ -1,6 +1,6 @@
 include ./secrets.mk
 POSTER_HEIGHT = 900
-.PRECIOUS: outgoing/%/video.mp4 outgoing/%/omdb.json outgoing/%/kodi.nfo
+.PRECIOUS: outgoing/%/video.mp4 outgoing/%/omdb.json outgoing/%/kodi.nfo outgoing/%/poster.jpg
 
 outgoing/%/video.mp4:
 	mkdir -p outgoing/$*

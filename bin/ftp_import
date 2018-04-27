@@ -6,6 +6,9 @@ FTP_ADDR="ftp://${FTP_USERNAME}:${FTP_PASSWORD}@${FTP_HOSTNAME}${FTP_PATH}"
 
 FILES=$(curl --list-only ${FTP_ADDR} 2> /dev/null | grep -E ^tt[0-9]{7})
 
+cwd=$(mktemp)
+cd ${cwd}
+
 for f in ${FILES}; do
   lftp -c "
     open -u ${FTP_USERNAME},${FTP_PASSWORD} ${FTP_HOSTNAME};
@@ -14,3 +17,6 @@ for f in ${FILES}; do
   "
   mv "$f" "${INCOMING_DIR}"
 done
+
+cd /
+rm -Rf ${cwd}

@@ -6,7 +6,8 @@ outgoing/%/video.mp4:
 	mkdir -p outgoing/$*
 	mv ./incoming/$*.mp4 $@ \
 		|| ffmpeg -y -fflags +genpts -i "incoming/$*.avi" -c copy "$@" \
-		|| ffmpeg -y -fflags +genpts -i "incoming/$*.mkv" -c copy "$@"
+		|| ffmpeg -y -fflags +genpts -i "incoming/$*.mkv" -c copy "$@" \
+		|| aws s3 cp s3://${S3_MOVIE_BUCKET}/$*/video.mp4 $@
 
 outgoing/%/ffprobe.txt: outgoing/%/video.mp4
 	mkdir -p outgoing/$*

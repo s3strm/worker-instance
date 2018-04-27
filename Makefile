@@ -27,5 +27,7 @@ outgoing/%/kodi.nfo: outgoing/%/omdb.json outgoing/%/ffprobe.txt
 outgoing/%/poster.jpg:
 	mkdir -p outgoing/$*
 	cp incoming/$*.jpg $@ \
+		|| aws s3 cp s3://${S3_MOVIE_BUCKET}/$*/poster-custom.jpg $@ \
+		|| aws s3 cp s3://${S3_MOVIE_BUCKET}/$*/poster.jpg $@ \
 		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
 		|| rm -f $@

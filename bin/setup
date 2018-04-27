@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+ROOT_DIR="$(dirname $0)/../"
+source "${ROOT_DIR}/etc/settings"
+
+mkdir -p "${INCOMING_DIR}"
+
+###############################################################################
+PACKAGES=(
+  lftp
+)
+apt-get update
+apt-get install -y ${PACKAGES[@]}
+###############################################################################

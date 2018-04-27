@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+ROOT_DIR="$(dirname $0)/../"
+source "${ROOT_DIR}/etc/settings"
+
+FTP_ADDR="ftp://${FTP_USERNAME}:${FTP_PASSWORD}@${FTP_HOSTNAME}${FTP_PATH}"
+
+FILES=$(curl --list-only ${FTP_ADDR} 2> /dev/null | grep -E ^tt[0-9]{7})
+
+for f in ${FILES}; do
+  lftp -c "
+    open -u ${FTP_USERNAME},${FTP_PASSWORD} ${FTP_HOSTNAME};
+    get ${FTP_PATH}${f};
+    rm ${FTP_PATH}${f};
+  "
+  mv "$f" "${INCOMING_DIR}"
+done

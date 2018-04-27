@@ -1,4 +1,5 @@
 include ./secrets.mk
+POSTER_HEIGHT = 900
 .PRECIOUS: outgoing/%/video.mp4 outgoing/%/omdb.json outgoing/%/kodi.nfo
 
 outgoing/%/video.mp4:
@@ -21,3 +22,9 @@ outgoing/%/omdb.json:
 outgoing/%/kodi.nfo: outgoing/%/omdb.json outgoing/%/ffprobe.txt
 	mkdir -p outgoing/$*
 	./bin/kodi_nfo_generator $* > $@
+
+outgoing/%/poster.jpg:
+	mkdir -p outgoing/$*
+	cp incoming/$*.jpg $@ \
+		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
+		|| rm -f $@

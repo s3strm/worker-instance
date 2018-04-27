@@ -2,7 +2,11 @@ SHELL = /bin/bash
 
 include ./secrets.mk
 POSTER_HEIGHT = 900
-.PRECIOUS: outgoing/%/video.mp4 outgoing/%/omdb.json outgoing/%/kodi.nfo outgoing/%/poster.jpg
+.PRECIOUS: outgoing/%/video.mp4 outgoing/%/omdb.json outgoing/%/kodi.nfo outgoing/%/poster.jpg outgoing/%/kodi.strm
+.PHONY: outgoing/%
+
+outgoing/%: outgoing/%/kodi.nfo outgoing/%/kodi.strm outgoing/%/poster.jpg
+	ls $@
 
 outgoing/%/video.mp4:
 	mkdir -p outgoing/$*
@@ -26,6 +30,9 @@ outgoing/%/kodi.nfo: outgoing/%/omdb.json outgoing/%/ffprobe.txt
 	mkdir -p outgoing/$*
 	./bin/kodi_nfo_generator $* > $@
 
+outgoing/%/kodi.strm:
+	echo "${S3STRM_ADDR}/$*/video.mp4" > $@
+
 outgoing/%/poster.jpg:
 	mkdir -p outgoing/$*
 	cp incoming/$*.jpg $@ \
@@ -33,3 +40,6 @@ outgoing/%/poster.jpg:
 		|| aws s3 cp s3://${S3_MOVIE_BUCKET}/$*/poster.jpg $@ \
 		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
 		|| rm -f $@
+
+clean:
+	rm -Rf outgoing/tt*

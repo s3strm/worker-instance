@@ -1,17 +1,13 @@
-#!/usr/bin/env bash -e
+#!/usr/bin/env bash
+set -e
 ROOT_DIR="$(dirname $0)/../"
 source "${ROOT_DIR}/etc/settings"
 
 help() {
-  echo "$0 <file> <key> <mime_type>"
+  echo "$0 <file> <key>"
 }
 
 upload() {
-  local FILE=$1
-  local KEY=$2
-  local MIME_TYPE=$3
-  local SHA=$(shasum "${FILE}" | awk '{ print $1 }')
-
   local ACCOUNT_AUTHORIZATION_RESPONSE=$(
     curl \
       https://api.backblazeb2.com/b2api/v1/b2_authorize_account \
@@ -39,16 +35,25 @@ upload() {
       -H "X-Bz-Info-Author: unknown"                  \
       --data-binary "@${FILE}"                        \
       ${UPLOAD_URL}
+      2> /dev/null
 }
 
 [[ $# -ne 2 ]] && echo "invalid arguments" && exit 1
 [[ ! -f $1 ]] && echo "file not found" && exit 1
 
-case $(echo $1 | grep -o '\..*$') in
-  ".jpg")   mimetype="image/jpeg" ;;
-  ".mp4")   mimetype="video/mp4" ;;
-  ".json")  mimetype="application/json" ;;
-  ".nfo")   mimetype="application/xml" ;;
+FILE=$1
+KEY=$2
+SHA=$(shasum "${FILE}" | awk '{ print $1 }')
+
+case $(echo ${FILE} | tr '.' '\n' | tail -n1) in
+  "jpg")   MIME_TYPE="image/jpeg" ;;
+  "mp4")   MIME_TYPE="video/mp4" ;;
+  "json")  MIME_TYPE="application/json" ;;
+  "nfo")   MIME_TYPE="application/xml" ;;
+  "strm")   MIME_TYPE="application/text" ;;
 esac
 
-upload $@ ${mimetype}
+response=$(upload)
+echo "${response}" | jq .
+[[ $(echo "${response}" | jq -r .status) -ne 400 ]] || exit 1
+

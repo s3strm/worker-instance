@@ -3,7 +3,7 @@ SHELL = /bin/bash
 include ./secrets.mk
 POSTER_HEIGHT = 900
 .PRECIOUS: outgoing/%/video.mp4 outgoing/%/omdb.json outgoing/%/kodi.nfo outgoing/%/poster.jpg outgoing/%/kodi.strm
-.PHONY: outgoing/%
+.PHONY: outgoing/% upload/%
 
 outgoing/%: outgoing/%/kodi.nfo outgoing/%/kodi.strm outgoing/%/poster.jpg
 	ls $@
@@ -40,6 +40,13 @@ outgoing/%/poster.jpg:
 		|| aws s3 cp s3://${S3_MOVIE_BUCKET}/$*/poster.jpg $@ \
 		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
 		|| rm -f $@
+
+upload/%: outgoing/%
+	./bin/backblaze_upload ./outgoing/$*/poster.jpg $*/poster.jpg
+	./bin/backblaze_upload ./outgoing/$*/kodi.nfo $*/kodi.nfo
+	./bin/backblaze_upload ./outgoing/$*/kodi.strm $*/kodi.strm
+	./bin/backblaze_upload ./outgoing/$*/omdb.json $*/omdb.json
+	./bin/backblaze_upload ./outgoing/$*/video.mp4 $*/video.mp4
 
 clean:
 	rm -Rf outgoing/tt*

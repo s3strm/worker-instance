@@ -74,7 +74,7 @@ upload/%: outgoing/%/video.mp4 outgoing/%/poster.jpg outgoing/%/kodi.strm outgoi
 			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/omdb.json $*/omdb.json
 	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
 		backblaze-b2 upload-file --noProgress \
-			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/ffmpeg.txt $*/ffmpeg.txt
+			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/ffprobe.txt $*/ffprobe.txt
 
 clean:
 	rm -Rf outgoing/tt*

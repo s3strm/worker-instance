@@ -56,7 +56,7 @@ outgoing/%/poster.jpg:
 		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
 		|| rm -f $@
 
-upload/%: outgoing/%/video.mp4 outgoing/%/poster.jpg outgoing/%/kodi.strm outgoing/%/kodi.nfo
+upload/%: outgoing/%/video.mp4 outgoing/%/poster.jpg outgoing/%/kodi.strm outgoing/%/kodi.nfo outgoing/%/omdb.json outgoing/%/ffprobe.txt
 	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
 		backblaze-b2 upload-file --noProgress \
 			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/video.mp4 $*/video.mp4

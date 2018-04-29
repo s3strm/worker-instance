@@ -10,6 +10,7 @@ PACKAGES=(
   nginx
   apache2-utils
   backblaze-b2
+  make
 )
 apt-get update
 apt-get install -y ${PACKAGES[@]}

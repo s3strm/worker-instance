@@ -5,6 +5,12 @@ POSTER_HEIGHT = 900
 .PRECIOUS: outgoing/%/video.mp4 outgoing/%/omdb.json outgoing/%/kodi.nfo outgoing/%/poster.jpg outgoing/%/kodi.strm
 .PHONY: outgoing/% upload/%
 
+define BACKBLAZE_AUTHORIZE_ACCOUNT
+	backblaze-b2 authorize-account \
+		${BACKBLAZE_ACCOUNT_ID} \
+		${BACKBLAZE_APPLICATION_KEY}
+endef
+
 outgoing/%: outgoing/%/kodi.nfo outgoing/%/kodi.strm outgoing/%/poster.jpg
 	ls $@
 
@@ -30,8 +36,12 @@ outgoing/%/kodi.nfo: outgoing/%/omdb.json outgoing/%/ffprobe.txt
 	mkdir -p outgoing/$*
 	./bin/kodi_nfo_generator $* > $@
 
-outgoing/%/kodi.strm:
-	echo "${S3STRM_ADDR}/$*/video.mp4" > $@
+outgoing/%/kodi.strm: outgoing/%/ffprobe.txt outgoing/%/omdb.json
+	echo -n '#EXTINF:' > $@
+	awk -F= '/^duration=/ { print int($2) }' outgoing/$*/ffprobe.txt | head -n1 | tr -d '\n'
+	echo -n ',' >> $@
+	jq -r .Title outgoing/$*/omdb.json | tr -d '\n' >> $@
+	echo "${S3STRM_ADDR}/$*/video.mp4" >> $@
 
 outgoing/%/poster.jpg:
 	mkdir -p outgoing/$*
@@ -42,11 +52,23 @@ outgoing/%/poster.jpg:
 		|| rm -f $@
 
 upload/%: outgoing/%
-	./bin/backblaze_upload ./outgoing/$*/poster.jpg $*/poster.jpg
-	./bin/backblaze_upload ./outgoing/$*/kodi.nfo $*/kodi.nfo
-	./bin/backblaze_upload ./outgoing/$*/kodi.strm $*/kodi.strm
-	./bin/backblaze_upload ./outgoing/$*/omdb.json $*/omdb.json
-	./bin/backblaze_upload ./outgoing/$*/video.mp4 $*/video.mp4
+	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
+		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
+			./outgoing/video.mp4 $*/video.mp4
+	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
+		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
+			./outgoing/poster.jpg $*/poster.jpg
+	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
+		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
+			--contentType application/xml \
+			./outgoing/kodi.nfo $*/kodi.nfo
+	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
+		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
+			--contentType application/text \
+			./outgoing/kodi.strm $*/kodi.strm
+	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
+		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
+			./outgoing/omdb.json $*/omdb.json
 
 clean:
 	rm -Rf outgoing/tt*

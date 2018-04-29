@@ -2,7 +2,14 @@ SHELL = /bin/bash
 
 include ./secrets.mk
 POSTER_HEIGHT = 900
-.PRECIOUS: outgoing/%/video.mp4 outgoing/%/omdb.json outgoing/%/kodi.nfo outgoing/%/poster.jpg outgoing/%/kodi.strm
+.PRECIOUS: \
+  outgoing/%/ffprobe.txt \
+  outgoing/%/kodi.nfo \
+  outgoing/%/kodi.strm \
+  outgoing/%/omdb.json \
+  outgoing/%/poster.jpg \
+  outgoing/%/video.mp4
+
 .PHONY: outgoing/% upload/%
 
 define BACKBLAZE_AUTHORIZE_ACCOUNT
@@ -10,9 +17,6 @@ define BACKBLAZE_AUTHORIZE_ACCOUNT
 		${BACKBLAZE_ACCOUNT_ID} \
 		${BACKBLAZE_APPLICATION_KEY}
 endef
-
-outgoing/%: outgoing/%/kodi.nfo outgoing/%/kodi.strm outgoing/%/poster.jpg
-	ls $@
 
 outgoing/%/video.mp4:
 	mkdir -p outgoing/$*
@@ -37,10 +41,11 @@ outgoing/%/kodi.nfo: outgoing/%/omdb.json outgoing/%/ffprobe.txt
 	./bin/kodi_nfo_generator $* > $@
 
 outgoing/%/kodi.strm: outgoing/%/ffprobe.txt outgoing/%/omdb.json
+	mkdir -p outgoing/$*
 	echo -n '#EXTINF:' > $@
-	awk -F= '/^duration=/ { print int($2) }' outgoing/$*/ffprobe.txt | head -n1 | tr -d '\n'
+	awk -F= '/^duration=/ { print int($$2) }' outgoing/$*/ffprobe.txt | head -n1 | tr -d '\n' >> $@
 	echo -n ',' >> $@
-	jq -r .Title outgoing/$*/omdb.json | tr -d '\n' >> $@
+	jq -r .Title outgoing/$*/omdb.json >> $@
 	echo "${S3STRM_ADDR}/$*/video.mp4" >> $@
 
 outgoing/%/poster.jpg:

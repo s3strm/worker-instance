@@ -51,24 +51,24 @@ outgoing/%/poster.jpg:
 		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
 		|| rm -f $@
 
-upload/%: outgoing/%
+upload/%:
+	echo ${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
+		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
+			./outgoing/$*/video.mp4 $*/video.mp4
 	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
 		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
-			./outgoing/video.mp4 $*/video.mp4
-	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
-			./outgoing/poster.jpg $*/poster.jpg
+			./outgoing/$*/poster.jpg $*/poster.jpg
 	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
 		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
 			--contentType application/xml \
-			./outgoing/kodi.nfo $*/kodi.nfo
+			./outgoing/$*/kodi.nfo $*/kodi.nfo
 	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
 		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
 			--contentType application/text \
-			./outgoing/kodi.strm $*/kodi.strm
+			./outgoing/$*/kodi.strm $*/kodi.strm
 	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
 		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
-			./outgoing/omdb.json $*/omdb.json
+			./outgoing/$*/omdb.json $*/omdb.json
 
 clean:
 	rm -Rf outgoing/tt*

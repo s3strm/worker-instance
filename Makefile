@@ -52,23 +52,21 @@ outgoing/%/poster.jpg:
 		|| rm -f $@
 
 upload/%:
-	echo ${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
-			./outgoing/$*/video.mp4 $*/video.mp4
 	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
-			./outgoing/$*/poster.jpg $*/poster.jpg
+		backblaze-b2 upload-file \
+			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/video.mp4 $*/video.mp4
 	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
-			--contentType application/xml \
-			./outgoing/$*/kodi.nfo $*/kodi.nfo
+		backblaze-b2 upload-file \
+			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/poster.jpg $*/poster.jpg
 	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
-			--contentType application/text \
-			./outgoing/$*/kodi.strm $*/kodi.strm
+		backblaze-b2 upload-file --contentType application/xml \
+			 ${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/kodi.nfo $*/kodi.nfo
 	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-		backblaze-b2 upload-file ${BACKBLAZE_MOVIE_BUCKET} \
-			./outgoing/$*/omdb.json $*/omdb.json
+		backblaze-b2 upload-file --contentType application/text \
+			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/kodi.strm $*/kodi.strm
+	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
+		backblaze-b2 upload-file \
+			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/omdb.json $*/omdb.json
 
 clean:
 	rm -Rf outgoing/tt*

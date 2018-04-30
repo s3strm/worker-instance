@@ -75,6 +75,9 @@ upload/%: outgoing/%/video.mp4 outgoing/%/poster.jpg outgoing/%/kodi.strm outgoi
 	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
 		backblaze-b2 upload-file --noProgress \
 			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/ffprobe.txt $*/ffprobe.txt
+	mkdir -p kodi/library/$*
+	cp ./outgoing/$*/kodi.nfo kodi/library/$*
+	cp ./outgoing/$*/kodi.strm kodi/library/$*
 
 clean:
 	rm -Rf outgoing/tt*

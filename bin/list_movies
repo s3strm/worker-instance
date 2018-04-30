@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+PROJECT_DIR="$(dirname $0)/../"
+source ${PROJECT_DIR}/etc/settings
+b2 authorize-account ${BACKBLAZE_ACCOUNT_ID} ${BACKBLAZE_APPLICATION_KEY} > /dev/null
+
+FILES=()
+
+more_files() {
+  local file_count=${#FILES[@]}
+  if [[ ${file_count} -eq 0 ]]; then
+    FILES+=( $(b2 list-file-names ${BACKBLAZE_MOVIE_BUCKET} | jq -r .files[].fileName) )
+  else
+    local last_file=${FILES[-1]}
+    FILES+=( $(b2 list-file-names ${BACKBLAZE_MOVIE_BUCKET} ${last_file} 500 | jq -r .files[].fileName) )
+  fi
+
+  [[ $(( ${file_count} + 1 )) != ${#FILES[@]} ]]
+  return $?
+}
+
+while more_files; do
+  echo "fetched ${#FILES[@]}" >&2
+done
+
+for f in ${FILES[@]}; do
+  echo ${f}
+done

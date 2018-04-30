@@ -10,7 +10,7 @@ library: bucket.cache
 	  f=$$(basename $$p); \
 	  if [[ $$f =~ ^kodi ]]; then \
 	    echo "fetching $$p"; \
-		mkdir ./library/$$(dirname $$p) 2> /dev/null; \
+		mkdir -p ./library/$$(dirname $$p) 2> /dev/null; \
 	    [[ ! -f ./library/$$p ]] \
 		  && wget ${S3STRM_ADDR}/$$p -O ./library/$$p; \
 	  fi \

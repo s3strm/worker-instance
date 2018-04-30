@@ -16,6 +16,9 @@ library: bucket.cache
 	  fi \
 	done
 
+library.tar.bz2: library
+	tar jcvf $@ $<
+
 bucket.cache:
 	$(info Populating file cache...)
 	@../bin/list_movie_bucket_files | sort | uniq > $@

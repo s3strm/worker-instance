@@ -22,7 +22,7 @@ import:
 	./bin/ftp_import
 
 export:
-	for imdb_id in $(find ./incoming/ -type f | xargs -i basename {} | cut -d. -f1 | sort | uniq); do \
+	for imdb_id in $$(find ./incoming/ -type f | xargs -i basename {} | cut -d. -f1 | sort | uniq); do \
 		make upload/$${imdb_id}; \
 		if [[ -f ./upload/$${imdb_id}.mp4 ]]; then \
 			rm -f ./incoming/$${imdb_id}.mp4 ./incoming/$${imdb_id}.mkv ./incoming/$${imdb_id}.avi; \

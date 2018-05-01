@@ -18,6 +18,14 @@ define BACKBLAZE_AUTHORIZE_ACCOUNT
 		${BACKBLAZE_APPLICATION_KEY}
 endef
 
+import:
+	./bin/ftp_import
+
+export:
+	for imdb_id in $(find ./incoming/ -type f | xargs -i basename {} | cut -d. -f1 | sort | uniq); do \
+		make upload/$${imdb_id}; \
+	done
+
 outgoing/%/video.mp4:
 	mkdir -p outgoing/$*
 	mv ./incoming/$*.mp4 $@ \

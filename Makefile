@@ -26,7 +26,7 @@ export:
 		make upload/$${imdb_id}; \
 		if [[ -f ./upload/$${imdb_id}.mp4 ]]; then \
 			rm -f ./incoming/$${imdb_id}.mp4 ./incoming/$${imdb_id}.mkv ./incoming/$${imdb_id}.avi; \
-		fi
+		fi \
 	done
 
 outgoing/%/video.mp4:

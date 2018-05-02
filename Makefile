@@ -22,19 +22,21 @@ import:
 	./bin/ftp_import
 
 export:
-	for imdb_id in $$(find ./incoming/ -type f | xargs -i basename {} | cut -d. -f1 | sort | uniq); do \
-		make upload/$${imdb_id}; \
-		if [[ -f ./upload/$${imdb_id}.mp4 ]]; then \
-			rm -f ./incoming/$${imdb_id}.mp4 ./incoming/$${imdb_id}.mkv ./incoming/$${imdb_id}.avi; \
-		fi \
+	for f in $$(find ./incoming/ -type f); do                                                  \
+		EXT=$$(echo $$f | grep -o [^\.]+$$);                                                   \
+		case $${EXT} in                                                                        \
+			mp4|avi|mkv) make outgoing/%/video.mp4 outgoing/%/kodi.strm outgoing/%/kodi.nfo ;; \
+			jpg)         make outgoing/%/poster.jpg                                         ;; \
+			srt)         make outgoing/%/english.srt                                        ;; \
+		esac;                                                                                  \
 	done
 
 outgoing/%/video.mp4:
 	mkdir -p outgoing/$*
 	mv ./incoming/$*.mp4 $@ \
 		|| ffmpeg -y -fflags +genpts -i "incoming/$*.avi" -c copy "$@" \
-		|| ffmpeg -y -fflags +genpts -i "incoming/$*.mkv" -c copy "$@" \
-		|| aws s3 cp s3://${S3_MOVIE_BUCKET}/$*/video.mp4 $@
+		|| ffmpeg -y -fflags +genpts -i "incoming/$*.mkv" -c copy "$@"
+
 outgoing/%/english.srt:
 	mkdir -p outgoing/$*
 	[[ -f ./incoming/$*.srt ]] && mv ./incoming/$*.srt $@

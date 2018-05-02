@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 ROOT_DIR="$(dirname $0)/../"
+set -e
 
 file=$1
 extension=$(grep -E -o [^\.]+$ <(echo ${file}))

@@ -2,8 +2,8 @@
 ROOT_DIR="$(dirname $0)/../"
 
 file=$1
-extension=$(echo $f | grep -E -o [^\.]+$)
-imdb_id=$(basename $f .${extension})
+extension=$(grep -E -o [^\.]+$ <(echo ${file}))
+imdb_id=$(basename ${file} .${extension})
 
 case ${extension} in
   mp4|avi|mkv)

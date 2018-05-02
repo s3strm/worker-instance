@@ -22,12 +22,12 @@ import:
 # populate `export/` with data from `import/`
 export:
 	for f in ${EXPORTABLE_FILES}; do              \
-		./bin/export_from_incoming $$f || break;  \
+		./bin/export_from_incoming $$f || exit 1;  \
 	done
 
 upload:
 	for f in ${UPLOADABLE_FILES}; do              \
-		./bin/upload_from_outgoing $$f || break;  \
+		./bin/upload_from_outgoing $$f || exit 1;  \
 	done
 	cp -aux ./outgoing/* ./kodi/library/
 

@@ -4,7 +4,7 @@ ROOT_DIR="$(dirname $0)/../"
 file=$1
 extension=$(grep -E -o [^\.]+$ <(echo ${file}))
 key=$(sed 's#./outgoing/##' <(echo ${file}))
-imdb_id=$(basename ${file} .${extension})
+imdb_id=$(basename $(dirname ${file}))
 
 options="--noProgress"
 case ${extension} in

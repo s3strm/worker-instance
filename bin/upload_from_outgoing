@@ -9,9 +9,9 @@ imdb_id=$(basename $(dirname ${file}))
 
 options="--noProgress"
 case ${extension} in
-  nfo)  options+=" --contenType application/xml" ;;
-  strm) options+=" --contenType application/text" ;;
-  srt)  options+=" --contenType text/srt" ;;
+  nfo)  options+=" --contentType application/xml" ;;
+  strm) options+=" --contentType application/text" ;;
+  srt)  options+=" --contentType text/srt" ;;
 esac
 
 b2 authorize-account ${BACKBLAZE_ACCOUNT_ID} ${BACKBLAZE_APPLICATION_KEY}

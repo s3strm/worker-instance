@@ -22,7 +22,7 @@ import:
 # populate `export/` with data from `import/`
 export:
 	for f in ${IMPORTABLE_FILES}; do     \
-		./bin/import_from_incoming $$f;  \
+		./bin/export_from_incoming $$f;  \
 	done
 
 upload:

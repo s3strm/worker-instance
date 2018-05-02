@@ -12,30 +12,31 @@ POSTER_HEIGHT = 900
 
 .PHONY: import export outgoing/% upload/%
 
-define BACKBLAZE_AUTHORIZE_ACCOUNT
-	backblaze-b2 authorize-account \
-		${BACKBLAZE_ACCOUNT_ID} \
-		${BACKBLAZE_APPLICATION_KEY}
-endef
+IMPORTABLE_FILES = $(wildcard ./incoming/tt*)
+EXPORTABLE_FILES = $(wildcard ./incoming/tt*)
 
+# populate `import/` with data from the ftp server
 import:
 	./bin/ftp_import
 
+# populate `export/` with data from `import/`
 export:
-	for f in $$(find ./incoming/ -type f); do                                                  \
-		EXT=$$(echo $$f | grep -o [^\.]+$$);                                                   \
-		case $${EXT} in                                                                        \
-			mp4|avi|mkv) make outgoing/%/video.mp4 outgoing/%/kodi.strm outgoing/%/kodi.nfo ;; \
-			jpg)         make outgoing/%/poster.jpg                                         ;; \
-			srt)         make outgoing/%/english.srt                                        ;; \
-		esac;                                                                                  \
+	for f in ${IMPORTABLE_FILES}; do     \
+		./bin/import_from_incoming $$f;  \
 	done
+
+upload:
+	for f in ${IMPORTABLE_FILES}; do     \
+		./bin/upload_from_outgoing $$f;  \
+	done
+	cp -aux ./outgoing/* ./kodi/library/
 
 outgoing/%/video.mp4:
 	mkdir -p outgoing/$*
 	mv ./incoming/$*.mp4 $@ \
 		|| ffmpeg -y -fflags +genpts -i "incoming/$*.avi" -c copy "$@" \
 		|| ffmpeg -y -fflags +genpts -i "incoming/$*.mkv" -c copy "$@"
+	rm -f incoming/$*.avi incoming/$*.mkv
 
 outgoing/%/english.srt:
 	mkdir -p outgoing/$*
@@ -67,37 +68,8 @@ outgoing/%/kodi.strm: outgoing/%/ffprobe.txt outgoing/%/omdb.json
 outgoing/%/poster.jpg:
 	mkdir -p outgoing/$*
 	cp incoming/$*.jpg $@ \
-		|| aws s3 cp s3://${S3_MOVIE_BUCKET}/$*/poster-custom.jpg $@ \
-		|| aws s3 cp s3://${S3_MOVIE_BUCKET}/$*/poster.jpg $@ \
 		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
 		|| rm -f $@
-
-upload/%: outgoing/%/video.mp4 outgoing/%/poster.jpg outgoing/%/kodi.strm outgoing/%/kodi.nfo outgoing/%/omdb.json outgoing/%/ffprobe.txt
-	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-		backblaze-b2 upload-file --noProgress \
-			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/video.mp4 $*/video.mp4
-	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-		backblaze-b2 upload-file --noProgress \
-			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/poster.jpg $*/poster.jpg
-	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-		backblaze-b2 upload-file --noProgress --contentType application/xml \
-			 ${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/kodi.nfo $*/kodi.nfo
-	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-		backblaze-b2 upload-file --noProgress --contentType application/text \
-			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/kodi.strm $*/kodi.strm
-	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-		backblaze-b2 upload-file --noProgress \
-			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/omdb.json $*/omdb.json
-	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-		backblaze-b2 upload-file --noProgress \
-			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/ffprobe.txt $*/ffprobe.txt
-	[[ -f ./outgoing/$*/english.srt ]] \
-		&& ${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
-			backblaze-b2 upload-file --noProgress --contentType text/srt \
-				${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/english.srt $*/english.srt
-	mkdir -p kodi/library/$*
-	cp ./outgoing/$*/kodi.nfo kodi/library/$*
-	cp ./outgoing/$*/kodi.strm kodi/library/$*
 
 clean:
 	rm -Rf outgoing/tt*

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+ROOT_DIR="$(dirname $0)/../"
+
+file=$1
+extension=$(grep -E -o [^\.]+$ <(echo $f))
+key=$(sed 's#./outgoing/##' <(echo $f))
+imdb_id=$(basename $f .${extension})
+
+options="--noProgress"
+case ${extension} in
+  nfo)  options+=" --contenType application/xml" ;;
+  strm) options+=" --contenType application/text" ;;
+  srt)  options+=" --contenType text/srt" ;;
+esac
+
+b2 authorize-account ${BACKBLAZE_ACCOUNT_ID} ${BACKBLAZE_APPLICATION_KEY}
+b2 upload-file ${options} ${BACKBLAZE_MOVIE_BUCKET} ${file} ${key}

@@ -35,6 +35,9 @@ outgoing/%/video.mp4:
 		|| ffmpeg -y -fflags +genpts -i "incoming/$*.avi" -c copy "$@" \
 		|| ffmpeg -y -fflags +genpts -i "incoming/$*.mkv" -c copy "$@" \
 		|| aws s3 cp s3://${S3_MOVIE_BUCKET}/$*/video.mp4 $@
+outgoing/%/english.srt:
+	mkdir -p outgoing/$*
+	[[ -f ./incoming/$*.srt ]] && mv ./incoming/$*.srt $@
 
 outgoing/%/ffprobe.txt: outgoing/%/video.mp4
 	mkdir -p outgoing/$*
@@ -86,6 +89,10 @@ upload/%: outgoing/%/video.mp4 outgoing/%/poster.jpg outgoing/%/kodi.strm outgoi
 	${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
 		backblaze-b2 upload-file --noProgress \
 			${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/ffprobe.txt $*/ffprobe.txt
+	[[ -f ./outgoing/$*/english.srt ]] \
+		&& ${BACKBLAZE_AUTHORIZE_ACCOUNT} && \
+			backblaze-b2 upload-file --noProgress --contentType text/srt \
+				${BACKBLAZE_MOVIE_BUCKET} ./outgoing/$*/english.srt $*/english.srt
 	mkdir -p kodi/library/$*
 	cp ./outgoing/$*/kodi.nfo kodi/library/$*
 	cp ./outgoing/$*/kodi.strm kodi/library/$*

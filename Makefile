@@ -21,13 +21,13 @@ import:
 
 # populate `export/` with data from `import/`
 export:
-	for f in ${EXPORTABLE_FILES}; do     \
-		./bin/export_from_incoming $$f;  \
+	for f in ${EXPORTABLE_FILES}; do              \
+		./bin/export_from_incoming $$f || break;  \
 	done
 
 upload:
-	for f in ${UPLOADABLE_FILES}; do     \
-		./bin/upload_from_outgoing $$f;  \
+	for f in ${UPLOADABLE_FILES}; do              \
+		./bin/upload_from_outgoing $$f || break;  \
 	done
 	cp -aux ./outgoing/* ./kodi/library/
 

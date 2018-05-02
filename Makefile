@@ -13,7 +13,7 @@ POSTER_HEIGHT = 900
 .PHONY: import export outgoing/% upload/%
 
 EXPORTABLE_FILES = $(wildcard ./incoming/tt*)
-UPLOADABLE_FILES = $(wildcard ./export/tt*/*)
+UPLOADABLE_FILES = $(wildcard ./outgoing/tt*/*)
 
 # populate `import/` with data from the ftp server
 import:

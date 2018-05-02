@@ -2,9 +2,9 @@
 ROOT_DIR="$(dirname $0)/../"
 
 file=$1
-extension=$(grep -E -o [^\.]+$ <(echo $f))
-key=$(sed 's#./outgoing/##' <(echo $f))
-imdb_id=$(basename $f .${extension})
+extension=$(grep -E -o [^\.]+$ <(echo ${file}))
+key=$(sed 's#./outgoing/##' <(echo ${file}))
+imdb_id=$(basename ${file} .${extension})
 
 options="--noProgress"
 case ${extension} in

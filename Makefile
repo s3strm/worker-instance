@@ -12,8 +12,8 @@ POSTER_HEIGHT = 900
 
 .PHONY: import export outgoing/% upload/%
 
-IMPORTABLE_FILES = $(wildcard ./incoming/tt*)
 EXPORTABLE_FILES = $(wildcard ./incoming/tt*)
+UPLOADABLE_FILES = $(wildcard ./export/tt*/*)
 
 # populate `import/` with data from the ftp server
 import:
@@ -21,12 +21,12 @@ import:
 
 # populate `export/` with data from `import/`
 export:
-	for f in ${IMPORTABLE_FILES}; do     \
+	for f in ${EXPORTABLE_FILES}; do     \
 		./bin/export_from_incoming $$f;  \
 	done
 
 upload:
-	for f in ${IMPORTABLE_FILES}; do     \
+	for f in ${UPLOADABLE_FILES}; do     \
 		./bin/upload_from_outgoing $$f;  \
 	done
 	cp -aux ./outgoing/* ./kodi/library/

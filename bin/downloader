@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+ROOT_DIR="$(dirname $0)/../"
+source "${ROOT_DIR}/etc/settings"
+
+DOWNLOAD_HOST="http://${BASIC_AUTH_USERNAME}:${BASIC_AUTH_PASSWORD}@s3strm.shit.cx"
+IMDB_ID=$1
+MOVIE_DIR=${HOME}/Movies/local/${IMDB_ID}
+
+for f in poster.jpg kodi.nfo video.mp4; do
+  [[ -f "${MOVIE_DIR}/$f" ]] && continue
+  mkdir ${MOVIE_DIR}
+  wget ${DOWNLOAD_HOST}/${IMDB_ID}/$f -O ${MOVIE_DIR}/$f
+done
+
+if [[ -f "${MOVIE_DIR}/kodi.nfo" ]]; then
+  mv "${MOVIE_DIR}/kodi.nfo" "${MOVIE_DIR}/video.nfo"
+fi

@@ -4,7 +4,7 @@ include ./secrets.mk
 POSTER_HEIGHT = 900
 .PRECIOUS: \
   outgoing/%/ffprobe.txt \
-  outgoing/%/kodi.nfo \
+  outgoing/%/video.nfo \
   outgoing/%/kodi.strm \
   outgoing/%/omdb.json \
   outgoing/%/poster.jpg \
@@ -53,7 +53,7 @@ outgoing/%/omdb.json:
 	[[ $$(jq -r .Title $@) != 'null' ]] || rm $@
 	[[ -f $@ ]]
 
-outgoing/%/kodi.nfo: outgoing/%/omdb.json outgoing/%/ffprobe.txt
+outgoing/%/video.nfo: outgoing/%/omdb.json outgoing/%/ffprobe.txt
 	mkdir -p outgoing/$*
 	./bin/kodi_nfo_generator $* > $@
 

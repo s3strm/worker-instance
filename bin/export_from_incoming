@@ -7,10 +7,10 @@ imdb_id=$(basename ${file} .${extension})
 
 case ${extension} in
   mp4|avi|mkv)
-    make -C ${ROOT_DIR}               \
+    make -C ${ROOT_DIR}              \
       outgoing/${imdb_id}/video.mp4  \
       outgoing/${imdb_id}/kodi.strm  \
-      outgoing/${imdb_id}/kodi.nfo   \
+      outgoing/${imdb_id}/video.nfo  \
       outgoing/${imdb_id}/poster.jpg
     ;;
   jpg) make -C ${ROOT_DIR} outgoing/${imdb_id}/poster.jpg  ;;

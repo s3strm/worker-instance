@@ -24,4 +24,4 @@ bucket.cache:
 	@../bin/list_movie_bucket_files | sort | uniq > $@
 
 clean:
-	rm ./bucket_file.cache
+	rm ./bucket.cache

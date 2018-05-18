@@ -6,7 +6,7 @@ DOWNLOAD_HOST="http://${BASIC_AUTH_USERNAME}:${BASIC_AUTH_PASSWORD}@s3strm.shit.
 IMDB_ID=$1
 MOVIE_DIR=${HOME}/Movies/local/${IMDB_ID}
 
-for f in poster.jpg kodi.nfo video.mp4; do
+for f in poster.jpg kodi.nfo video.mp4 video.nfo video.srt; do
   [[ -f "${MOVIE_DIR}/$f" ]] && continue
   mkdir ${MOVIE_DIR}
   wget ${DOWNLOAD_HOST}/${IMDB_ID}/$f -O ${MOVIE_DIR}/$f

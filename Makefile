@@ -12,7 +12,7 @@ POSTER_HEIGHT = 900
 
 .PHONY: import export outgoing/% upload/%
 
-EXPORTABLE_FILES = $(wildcard ./incoming/tt*)
+EXPORTABLE_FILES = $(wildcard ${INCOMING_DIR}/tt*)
 UPLOADABLE_FILES = $(wildcard ./outgoing/tt*/*)
 
 # populate `import/` with data from the ftp server
@@ -33,14 +33,14 @@ upload:
 
 outgoing/%/video.mp4:
 	mkdir -p outgoing/$*
-	mv ./incoming/$*.mp4 $@ \
-		|| ffmpeg -y -fflags +genpts -i "incoming/$*.avi" -c copy "$@" \
-		|| ffmpeg -y -fflags +genpts -i "incoming/$*.mkv" -c copy "$@"
-	rm -f incoming/$*.avi incoming/$*.mkv
+	mv ${INCOMING_DIR}/$*.mp4 $@ \
+		|| ffmpeg -y -fflags +genpts -i "${INCOMING_DIR}/$*.avi" -c copy "$@" \
+		|| ffmpeg -y -fflags +genpts -i "${INCOMING_DIR}/$*.mkv" -c copy "$@"
+	rm -f ${INCOMING_DIR}/$*.avi ${INCOMING_DIR}/$*.mkv
 
 outgoing/%/english.srt:
 	mkdir -p outgoing/$*
-	[[ -f ./incoming/$*.srt ]] && mv ./incoming/$*.srt $@
+	[[ -f ${INCOMING_DIR}/$*.srt ]] && mv ${INCOMING_DIR}/$*.srt $@
 
 outgoing/%/ffprobe.txt: outgoing/%/video.mp4
 	mkdir -p outgoing/$*
@@ -67,7 +67,7 @@ outgoing/%/kodi.strm: outgoing/%/ffprobe.txt outgoing/%/omdb.json
 
 outgoing/%/poster.jpg:
 	mkdir -p outgoing/$*
-	cp incoming/$*.jpg $@ \
+	cp ${INCOMING_DIR}/$*.jpg $@ \
 		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
 		|| rm -f $@
 

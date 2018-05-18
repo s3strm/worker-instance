@@ -7,6 +7,11 @@ FTP_ADDR="ftp://${FTP_USERNAME}:${FTP_PASSWORD}@${FTP_HOSTNAME}${FTP_PATH}"
 FILES=$(curl --list-only ${FTP_ADDR} 2> /dev/null | grep -E ^tt[0-9]{7})
 TMPDIR=$(mktemp -d)
 
+if [[ ! -d ${INCOMING_DIR} ]]; then
+  echo "INCOMING_DIR does not exist" >&2
+  exit 1
+fi
+
 for f in ${FILES}; do
   lftp -c "
     open -u ${FTP_USERNAME},${FTP_PASSWORD} ${FTP_HOSTNAME};
@@ -14,7 +19,7 @@ for f in ${FILES}; do
     get ${FTP_PATH}${f};
     rm ${FTP_PATH}${f};
   "
-  mv "${TMPDIR}/$f" "${ROOT_DIR}/incoming"
+  mv "${TMPDIR}/$f" "${INCOMING_DIR}"
 done
 
 rm -Rf ${TMPDIR}

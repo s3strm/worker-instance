@@ -10,6 +10,7 @@ for f in poster.jpg kodi.nfo video.mp4 video.nfo video.srt; do
   [[ -f "${MOVIE_DIR}/$f" ]] && continue
   mkdir ${MOVIE_DIR}
   wget ${DOWNLOAD_HOST}/${IMDB_ID}/$f -O ${MOVIE_DIR}/$f
+  [[ -s "${MOVIE_DIR}/$f" ]] || rm -f "${MOVIE_DIR}/$f"
 done
 
 if [[ -f "${MOVIE_DIR}/kodi.nfo" ]]; then

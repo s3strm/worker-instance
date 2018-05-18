@@ -38,7 +38,7 @@ outgoing/%/video.mp4:
 		|| ffmpeg -y -fflags +genpts -i "${INCOMING_DIR}/$*.mkv" -c copy "$@"
 	rm -f ${INCOMING_DIR}/$*.avi ${INCOMING_DIR}/$*.mkv
 
-outgoing/%/english.srt:
+outgoing/%/video.srt:
 	mkdir -p outgoing/$*
 	[[ -f ${INCOMING_DIR}/$*.srt ]] && mv ${INCOMING_DIR}/$*.srt $@
 

@@ -71,6 +71,3 @@ outgoing/%/poster.jpg:
 		|| wget "${S3STRM_ADDR}/$*/poster.jpg" -O $@ \
 		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
 		|| rm -f $@
-
-clean:
-	rm -Rf outgoing/tt*

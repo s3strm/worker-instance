@@ -4,13 +4,14 @@ source "${ROOT_DIR}/etc/settings"
 
 ### PACKAGES ##################################################################
 PACKAGES=(
+  apache2-utils
   awscli
+  backblaze-b2
   jq
   lftp
-  nginx
-  apache2-utils
-  backblaze-b2
   make
+  nginx
+  xz-utils
 )
 apt-get update
 apt-get install -y ${PACKAGES[@]}

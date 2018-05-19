@@ -13,6 +13,7 @@ POSTER_HEIGHT = 900
 .PHONY: import export outgoing/% upload/%
 
 EXPORTABLE_FILES = $(wildcard ${INCOMING_DIR}/tt*)
+EXPORTABLE_FILES = $(wildcard ${INCOMING_DIR}/tt*.avi ${INCOMING_DIR}/tt*.mkv ${INCOMING_DIR}/tt*.mkv)
 UPLOADABLE_FILES = $(wildcard ./outgoing/tt*/*)
 
 # populate `import/` with data from the ftp server

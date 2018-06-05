@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+ROOT_DIR="$(dirname $0)/../"
+source "${ROOT_DIR}/etc/settings"
+
+BATCH_SIZE=1
+MOVIE_DIR=$(readlink -f "${ROOT_DIR}/outgoing")
+
+for imdb_id in $(shuf ${ROOT_DIR}/etc/movies.txt | head -n${BATCH_SIZE}); do
+  [[ -d "${MOVIE_DIR}/${imdb_id}" ]] && continue
+  ${ROOT_DIR}/bin/downloader ${imdb_id}
+done

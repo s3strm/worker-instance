@@ -2,26 +2,17 @@
 ROOT_DIR="$(dirname $0)/../"
 source "${ROOT_DIR}/etc/settings"
 
-ACCOUNT_AUTHORIZATION_RESPONSE=$(
-curl \
-  https://api.backblazeb2.com/b2api/v1/b2_authorize_account \
-  -u "${BACKBLAZE_ACCOUNT_ID}:${BACKBLAZE_APPLICATION_KEY}" \
-  2> /dev/null
-)
-
-export BACKBLAZE_MOVIE_BUCKET
-export API_URL=$(echo ${ACCOUNT_AUTHORIZATION_RESPONSE} | jq -r .apiUrl)
-export ACCOUNT_AUTHORIZATION_TOKEN=$(echo ${ACCOUNT_AUTHORIZATION_RESPONSE} | jq -r .authorizationToken)
-
-FILE_URL="${API_URL}/file/${BACKBLAZE_MOVIE_BUCKET}/${IMDB_ID}/$f?Authorization=${ACCOUNT_AUTHORIZATION_TOKEN}"
+if [[ -z ${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN} ]] || [[ -z ${BACKBLAZE_API_URL} ]] ; then
+  eval $(${ROOT_DIR}/bin/bb_token)
+fi
 
 IMDB_ID=$1
 MOVIE_DIR=${ROOT_DIR}/outgoing/${IMDB_ID}
 
 for f in poster.jpg kodi.nfo video.mp4 video.nfo video.srt; do
   [[ -f "${MOVIE_DIR}/$f" ]] && continue
-  mkdir ${MOVIE_DIR}
-  wget "${API_URL}/file/${BACKBLAZE_MOVIE_BUCKET}/${IMDB_ID}/$f?Authorization=${ACCOUNT_AUTHORIZATION_TOKEN}" \
+  mkdir -p ${MOVIE_DIR}
+  wget "${BACKBLAZE_API_URL}/file/${BACKBLAZE_MOVIE_BUCKET}/${IMDB_ID}/$f?Authorization=${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN}" \
     -O "${MOVIE_DIR}/$f"
   [[ -s "${MOVIE_DIR}/$f" ]] || rm -f "${MOVIE_DIR}/$f"
 done
@@ -29,3 +20,6 @@ done
 if [[ -f "${MOVIE_DIR}/kodi.nfo" ]]; then
   mv "${MOVIE_DIR}/kodi.nfo" "${MOVIE_DIR}/video.nfo"
 fi
+
+# remove directory if empty
+rmdir ${MOVIE_DIR} &> /dev/null

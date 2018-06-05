@@ -2,10 +2,17 @@
 ROOT_DIR="$(dirname $0)/../"
 source "${ROOT_DIR}/etc/settings"
 
+if [[ -z ${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN} ]] || [[ -z ${BACKBLAZE_API_URL} ]] ; then
+  eval $(${ROOT_DIR}/bin/bb_token)
+  export BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN
+  export BACKBLAZE_API_URL
+fi
+
 BATCH_SIZE=1
 MOVIE_DIR=$(readlink -f "${ROOT_DIR}/outgoing")
+SHUF_CMD=$(command -v shuf || command -v gshuf)
 
-for imdb_id in $(shuf ${ROOT_DIR}/etc/movies.txt | head -n${BATCH_SIZE}); do
+for imdb_id in $(${SHUF_CMD} ${ROOT_DIR}/etc/movies.txt | head -n${BATCH_SIZE}); do
   [[ -d "${MOVIE_DIR}/${imdb_id}" ]] && continue
   ${ROOT_DIR}/bin/downloader ${imdb_id}
 done

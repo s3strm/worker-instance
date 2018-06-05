@@ -20,6 +20,9 @@ UPLOADABLE_FILES = $(wildcard ./outgoing/tt*/*)
 import:
 	./bin/ftp_import
 
+download_batch:
+	./bin/download_batch
+
 # populate `export/` with data from `import/`
 export:
 	for f in ${EXPORTABLE_FILES}; do              \

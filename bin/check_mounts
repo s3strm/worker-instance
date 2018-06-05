@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-mounts=(
-  "/mnt/disk1"
-)
-
-for m in ${mounts[@]}; do
+for m in $@; do
   mount | grep "on $m"
 done

@@ -22,12 +22,17 @@ import:
 
 download_batch:
 	./bin/download_batch
+	$(MAKE) update_library
+
+update_library:
+	/usr/bin/kodi-send --action "UpdateLibrary(video)"
 
 # populate `export/` with data from `import/`
 export:
 	for f in ${EXPORTABLE_FILES}; do              \
 		./bin/export_from_incoming $$f || exit 1;  \
 	done
+	$(MAKE) update_library
 
 upload:
 	for f in ${UPLOADABLE_FILES}; do              \

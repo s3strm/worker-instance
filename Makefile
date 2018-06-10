@@ -50,6 +50,8 @@ outgoing/%/video.mp4:
 
 outgoing/%/video.srt:
 	mkdir -p outgoing/$*
+	-wget "${S3STRM_ADDR}/$*/video.srt" -O $@
+	[[ -s $@ ]] || rm -f $@
 	[[ -f ${INCOMING_DIR}/$*.srt ]] && mv ${INCOMING_DIR}/$*.srt $@
 
 outgoing/%/ffprobe.txt: outgoing/%/video.mp4

@@ -9,7 +9,7 @@ fi
 IMDB_ID=$1
 MOVIE_DIR=${ROOT_DIR}/outgoing/${IMDB_ID}
 
-for f in poster.jpg kodi.nfo video.mp4 video.nfo video.srt; do
+for f in video.mp4; do
   [[ -f "${MOVIE_DIR}/$f" ]] && continue
   mkdir -p ${MOVIE_DIR}
   wget "${BACKBLAZE_API_URL}/file/${BACKBLAZE_MOVIE_BUCKET}/${IMDB_ID}/$f?Authorization=${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN}" \
@@ -17,9 +17,9 @@ for f in poster.jpg kodi.nfo video.mp4 video.nfo video.srt; do
   [[ -s "${MOVIE_DIR}/$f" ]] || rm -f "${MOVIE_DIR}/$f"
 done
 
-if [[ -f "${MOVIE_DIR}/kodi.nfo" ]]; then
-  mv "${MOVIE_DIR}/kodi.nfo" "${MOVIE_DIR}/video.nfo"
-fi
+make -C ${ROOT_DIR} outgoing/${IMDB_ID}/video.srt
+make -C ${ROOT_DIR} outgoing/${IMDB_ID}/poster.jpg
+make -C ${ROOT_DIR} outgoing/${IMDB_ID}/video.nfo
 
 # remove directory if empty
 rmdir ${MOVIE_DIR} &> /dev/null

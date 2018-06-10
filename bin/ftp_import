@@ -4,13 +4,16 @@ ROOT_DIR="$(dirname $0)/../"
 source "${ROOT_DIR}/etc/settings"
 
 FTP_ADDR="ftp://${FTP_USERNAME}:${FTP_PASSWORD}@${FTP_HOSTNAME}${FTP_PATH}"
-FILES=$(curl --list-only ${FTP_ADDR} 2> /dev/null | grep -E ^tt[0-9]{7})
+FILES=$(curl --list-only ${FTP_ADDR} 2> /dev/null | grep -E ^tt[0-9]{7} || true)
+[[ -z "${FILES}" ]] && exit 0
+
 TMPDIR=$(mktemp -d)
 
 if [[ ! -d ${INCOMING_DIR} ]]; then
   echo "INCOMING_DIR does not exist" >&2
   exit 1
 fi
+
 
 for f in ${FILES}; do
   lftp -c "

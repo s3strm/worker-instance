@@ -13,7 +13,6 @@ POSTER_HEIGHT = 900
 .PHONY: import export outgoing/% upload/%
 
 EXPORTABLE_FILES = $(wildcard ${INCOMING_DIR}/tt*)
-EXPORTABLE_FILES = $(wildcard ${INCOMING_DIR}/tt*.avi ${INCOMING_DIR}/tt*.mkv ${INCOMING_DIR}/tt*.mkv)
 UPLOADABLE_FILES = $(wildcard ./outgoing/tt*/*)
 
 # populate `import/` with data from the ftp server
@@ -29,10 +28,12 @@ update_library:
 
 # populate `export/` with data from `import/`
 export:
+ifneq (,${EXPORTABLE_FILES})
 	for f in ${EXPORTABLE_FILES}; do              \
 		./bin/export_from_incoming $$f || exit 1;  \
 	done
 	$(MAKE) update_library
+endif
 
 upload:
 	for f in ${UPLOADABLE_FILES}; do              \

@@ -4,11 +4,11 @@ find_path() {
 }
 
 path_uses() {
-  sqlite3 ${video_db} "select count(*) from path where idPath=$1"
+  sqlite3 ${video_db} "select count(*) from files where idPath=$1"
 }
 
 texture_path_uses() {
-  sqlite3 ${texture_db} "select count(*) from path where id=$1"
+  sqlite3 ${texture_db} "select count(*) from texture where url like $1"
 }
 
 imdb_id=$1
@@ -32,7 +32,7 @@ echo "uses of path is $(path_uses ${id_path})"
 echo "art is ${id_art}"
 echo "texture is ${id_texture}"
 echo "texture_path is ${id_texture_path}"
-echo "uses of texture path is $(texture_path_uses ${id_texture_path})"
+echo "uses of texture path is $(texture_path_uses ${path})"
 
 [[ -z ${id_file} ]] || sqlite3 ${video_db} "delete from files where idFile=${id_file}"
 [[ -z ${id_movie} ]] || sqlite3 ${video_db} "delete from movie where idMovie=${id_movie}"
@@ -43,6 +43,6 @@ if [[ ! -z ${id_path} ]] && [[ $(path_uses ${id_path}) -eq 0 ]]; then
   sqlite3 ${video_db} "delete from path where idPath=${id_path}"
 fi
 
-if [[ ! -z ${id_texture_path} ]] && [[ $(texture_path_uses ${id_texture_path}) -eq 0 ]]; then
+if [[ ! -z ${id_texture_path} ]] && [[ $(texture_path_uses ${path}) -eq 0 ]]; then
   sqlite3 ${texture_db} "delete from path where id=${id_texture_path}"
 fi

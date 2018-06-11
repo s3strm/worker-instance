@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+find_path() {
+  find /mnt/disk1/movies/ /mnt/disk2/movies/ -type d -iname $1
+}
+
+path_uses() {
+  sqlite3 ${video_db} "select count(*) from path where idPath=$1"
+}
+
+texture_path_uses() {
+  sqlite3 ${texture_db} "select count(*) from path where id=$1"
+}
+
+imdb_id=$1
+video_db="/home/xbian/.kodi/userdata/Database/MyVideos107.db"
+texture_db="/home/xbian/.kodi/userdata/Database/Textures13.db"
+
+path="$(find_path ${imdb_id})"
+id_movie=$(sqlite3 ${video_db} "select idMovie from movie where c22 like '${path}%'")
+id_file=$(sqlite3 ${video_db} "select idFile from movie where idMovie=${id_movie}")
+id_path=$(sqlite3 ${video_db} "select idPath from files where idFile='${id_file}'")
+id_art=$(sqlite3 ${video_db} "select art_id from art where url like '${path}%'")
+
+id_texture=$(sqlite3 ${texture_db} "select id from texture where url like '${path}%'")
+id_texture_path=$(sqlite3 ${texture_db} "select id from path where url like '${path}%'")
+
+
+echo "file is ${id_file}"
+echo "movie is ${id_movie}"
+echo "path is ${id_path}"
+echo "art is ${id_art}"
+echo "texture is ${id_texture}"
+echo "texture_path is ${id_texture_path}"
+echo "uses of texture path is $(texture_path_uses ${id_texture_path})"
+
+sqlite3 ${video_db} "delete from files where idFile=${id_file}"
+sqlite3 ${video_db} "delete from movie where idMovie=${id_movie}"
+sqlite3 ${video_db} "delete from art where url like '${path}%'"
+sqlite3 ${texture_db} "delete from texture where id=${id_texture}"
+
+if [[ $(path_uses ${id_path}) -eq 0 ]]; then
+  sqlite3 ${video_db} "delete from path where idPath=${id_path}"
+fi
+
+if [[ $(texture_path_uses ${id_texture_path}) -eq 0 ]]; then
+  sqlite3 ${texture_db} "delete from path where id=${id_texture_path}"
+fi

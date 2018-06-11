@@ -8,7 +8,7 @@ path_uses() {
 }
 
 texture_path_uses() {
-  sqlite3 ${texture_db} "select count(*) from texture where url like $1"
+  sqlite3 ${texture_db} "select count(*) from texture where url like '$1%'"
 }
 
 imdb_id=$1

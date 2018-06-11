@@ -6,20 +6,20 @@ if [[ -z ${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN} ]] || [[ -z ${BACKBLAZE_API_UR
   eval $(${ROOT_DIR}/bin/bb_token)
 fi
 
-IMDB_ID=$1
-MOVIE_DIR=${ROOT_DIR}/outgoing/${IMDB_ID}
 
-for f in video.mp4; do
-  [[ -f "${MOVIE_DIR}/$f" ]] && continue
-  mkdir -p ${MOVIE_DIR}
-  wget "${BACKBLAZE_API_URL}/file/${BACKBLAZE_MOVIE_BUCKET}/${IMDB_ID}/$f?Authorization=${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN}" \
-    -O "${MOVIE_DIR}/$f"
-  [[ -s "${MOVIE_DIR}/$f" ]] || rm -f "${MOVIE_DIR}/$f"
+IMDB_ID=$1
+[[ -f "${ROOT_DIR}/outcoing/${IMDB_ID}/video.mp4" ]] && exit 0
+trap "rm -f ${ROOT_DIR}/incoming/${IMDB_ID}.*" SIGINT SIGTERM
+
+wget "${BACKBLAZE_API_URL}/file/${BACKBLAZE_MOVIE_BUCKET}/${IMDB_ID}/video.mp4?Authorization=${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN}" \
+  -O "${ROOT_DIR}/incoming/${IMDB_ID}.mp4"
+wget "${BACKBLAZE_API_URL}/file/${BACKBLAZE_MOVIE_BUCKET}/${IMDB_ID}/video.srt?Authorization=${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN}" \
+  -O "${ROOT_DIR}/incoming/${IMDB_ID}.srt"
+wget "${BACKBLAZE_API_URL}/file/${BACKBLAZE_MOVIE_BUCKET}/${IMDB_ID}/poster.jpg?Authorization=${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN}" \
+  -O "${ROOT_DIR}/incoming/${IMDB_ID}.jpg"
+
+for f in ${ROOT_DIR}/incoming/*; do
+  [[ -s "$f" ]] || rm -f "$f"
 done
 
-make -C ${ROOT_DIR} outgoing/${IMDB_ID}/video.srt
-make -C ${ROOT_DIR} outgoing/${IMDB_ID}/poster.jpg
-make -C ${ROOT_DIR} outgoing/${IMDB_ID}/video.nfo
-
-# remove directory if empty
-rmdir ${MOVIE_DIR} &> /dev/null
+[[ -s "${ROOT_DIR}/incoming/$f" ]] || rm -f "${ROOT_DIR}/incoming/$f"

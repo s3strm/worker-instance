@@ -18,7 +18,7 @@ texture_db="/home/xbian/.kodi/userdata/Database/Textures13.db"
 path="$(find_path ${imdb_id})"
 id_movie=$(sqlite3 ${video_db} "select idMovie from movie where c22 like '${path}%'")
 id_file=$(sqlite3 ${video_db} "select idFile from movie where idMovie=${id_movie}")
-id_path=$(sqlite3 ${video_db} "select idPath from files where idFile='${id_file}'")
+id_path=$(sqlite3 ${video_db} "select idPath from files where strPath like '${path}%'")
 id_art=$(sqlite3 ${video_db} "select art_id from art where url like '${path}%'")
 
 id_texture=$(sqlite3 ${texture_db} "select id from texture where url like '${path}%'")

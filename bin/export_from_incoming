@@ -9,7 +9,6 @@ case ${extension} in
   mp4|avi|mkv)
     make -C ${ROOT_DIR}              \
       outgoing/${imdb_id}/video.mp4  \
-      outgoing/${imdb_id}/kodi.strm  \
       outgoing/${imdb_id}/video.nfo  \
       outgoing/${imdb_id}/poster.jpg
     ;;

@@ -33,15 +33,15 @@ echo "texture is ${id_texture}"
 echo "texture_path is ${id_texture_path}"
 echo "uses of texture path is $(texture_path_uses ${id_texture_path})"
 
-sqlite3 ${video_db} "delete from files where idFile=${id_file}"
-sqlite3 ${video_db} "delete from movie where idMovie=${id_movie}"
-sqlite3 ${video_db} "delete from art where url like '${path}%'"
-sqlite3 ${texture_db} "delete from texture where id=${id_texture}"
+[[ -z ${id_file} ]] || sqlite3 ${video_db} "delete from files where idFile=${id_file}"
+[[ -z ${id_movie} ]] || sqlite3 ${video_db} "delete from movie where idMovie=${id_movie}"
+[[ -z ${path} ]] || sqlite3 ${video_db} "delete from art where url like '${path}%'"
+[[ -z ${id_texture} ]] || sqlite3 ${texture_db} "delete from texture where id=${id_texture}"
 
-if [[ $(path_uses ${id_path}) -eq 0 ]]; then
+if [[ ! -z ${id_path} ]] && [[ $(path_uses ${id_path}) -eq 0 ]]; then
   sqlite3 ${video_db} "delete from path where idPath=${id_path}"
 fi
 
-if [[ $(texture_path_uses ${id_texture_path}) -eq 0 ]]; then
+if [[ ! -z ${id_texture_path} ]] && [[ $(texture_path_uses ${id_texture_path}) -eq 0 ]]; then
   sqlite3 ${texture_db} "delete from path where id=${id_texture_path}"
 fi

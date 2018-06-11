@@ -24,7 +24,7 @@ download_batch:
 	$(MAKE) update_library
 
 update_library:
-	/usr/bin/kodi-send --action "UpdateLibrary(video)"
+	-/usr/bin/kodi-send --action "UpdateLibrary(video)"
 
 # populate `export/` with data from `import/`
 export:

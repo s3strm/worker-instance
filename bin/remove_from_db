@@ -28,6 +28,7 @@ id_texture_path=$(sqlite3 ${texture_db} "select id from path where url like '${p
 echo "file is ${id_file}"
 echo "movie is ${id_movie}"
 echo "path is ${id_path}"
+echo "uses of path is $(path_uses ${id_path})"
 echo "art is ${id_art}"
 echo "texture is ${id_texture}"
 echo "texture_path is ${id_texture_path}"

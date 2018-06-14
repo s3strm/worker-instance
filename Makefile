@@ -83,8 +83,7 @@ outgoing/%/kodi.strm: outgoing/%/ffprobe.txt outgoing/%/omdb.json
 
 outgoing/%/poster.jpg:
 	mkdir -p outgoing/$*
-	cp ${INCOMING_DIR}/$*.jpg $@ \
+	-mv ${INCOMING_DIR}/$*.jpg $@ \
 		|| ${BACKBLAZE_WGET} "${BACKBLAZE_PATH}/${IMDB_ID}/poster.jpg" -O $@ \
 		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
-		|| rm -f $@
-	rm -f ${INCOMING_DIR}/$*.jpg
+	[[ -s $@ ]] || rm -f $@   # delete downloaded file if it has a zero-length

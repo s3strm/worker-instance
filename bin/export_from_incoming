@@ -12,6 +12,6 @@ case ${extension} in
       outgoing/${imdb_id}/video.nfo  \
       outgoing/${imdb_id}/poster.jpg
     ;;
-  jpg) make -C ${ROOT_DIR} outgoing/${imdb_id}/poster.jpg  ;;
-  srt) make -C ${ROOT_DIR} outgoing/${imdb_id}/video.srt   ;;
+  jpg) make -C ${ROOT_DIR} outgoing/${imdb_id}/poster.jpg   ;;
+  srt) make -C ${ROOT_DIR} outgoing/${imdb_id}/video.en.srt ;;
 esac

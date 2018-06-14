@@ -48,10 +48,10 @@ outgoing/%/video.mp4:
 		|| ffmpeg -y -fflags +genpts -i "${INCOMING_DIR}/$*.mkv" -c copy "$@"
 	rm -f ${INCOMING_DIR}/$*.avi ${INCOMING_DIR}/$*.mkv
 
-outgoing/%/video.srt:
+outgoing/%/video.en.srt:
 	mkdir -p outgoing/$*
-	-wget "${S3STRM_ADDR}/$*/video.srt" -O $@
-	[[ -s $@ ]] || rm -f $@
+	-wget "${S3STRM_ADDR}/$*/video.en.srt" -O $@
+	[[ -s $@ ]] || rm -f $@   # delete downloaded file has a zero-length
 	[[ -f ${INCOMING_DIR}/$*.srt ]] && mv ${INCOMING_DIR}/$*.srt $@
 
 outgoing/%/ffprobe.txt: outgoing/%/video.mp4

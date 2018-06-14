@@ -1,6 +1,10 @@
 SHELL = /bin/bash
-
 include ./secrets.mk
+include ./bb_token.mk
+
+BACKBLAZE_WGET = curl -H 'Authorization: ${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN}'
+BACKBLAZE_PATH = ${BACKBLAZE_API_URL}/file/${BACKBLAZE_MOVIE_BUCKET}
+
 POSTER_HEIGHT = 900
 .PRECIOUS: \
   outgoing/%/ffprobe.txt \
@@ -50,7 +54,7 @@ outgoing/%/video.mp4:
 
 outgoing/%/video.en.srt:
 	mkdir -p outgoing/$*
-	-wget "${S3STRM_ADDR}/$*/video.en.srt" -O $@
+	-${BACKBLAZE_WGET} "${BACKBLAZE_PATH}/${IMDB_ID}/video.en.srt" -O $@
 	[[ -s $@ ]] || rm -f $@   # delete downloaded file has a zero-length
 	[[ -f ${INCOMING_DIR}/$*.srt ]] && mv ${INCOMING_DIR}/$*.srt $@
 
@@ -80,7 +84,7 @@ outgoing/%/kodi.strm: outgoing/%/ffprobe.txt outgoing/%/omdb.json
 outgoing/%/poster.jpg:
 	mkdir -p outgoing/$*
 	cp ${INCOMING_DIR}/$*.jpg $@ \
-		|| wget "${S3STRM_ADDR}/$*/poster.jpg" -O $@ \
+		|| ${BACKBLAZE_WGET} "${BACKBLAZE_PATH}/${IMDB_ID}/poster.jpg" -O $@ \
 		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
 		|| rm -f $@
 	rm -f ${INCOMING_DIR}/$*.jpg

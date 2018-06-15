@@ -54,7 +54,7 @@ outgoing/%/video.mp4:
 
 outgoing/%/video.en.srt:
 	mkdir -p outgoing/$*
-	-${BACKBLAZE_WGET} "${BACKBLAZE_PATH}/${IMDB_ID}/video.en.srt" -O $@
+	-${BACKBLAZE_WGET} "${BACKBLAZE_PATH}/$*/video.en.srt" -O $@
 	[[ -s $@ ]] || rm -f $@   # delete downloaded file has a zero-length
 	[[ -f ${INCOMING_DIR}/$*.srt ]] && mv ${INCOMING_DIR}/$*.srt $@
 
@@ -84,6 +84,6 @@ outgoing/%/kodi.strm: outgoing/%/ffprobe.txt outgoing/%/omdb.json
 outgoing/%/poster.jpg:
 	mkdir -p outgoing/$*
 	-mv ${INCOMING_DIR}/$*.jpg $@ \
-		|| ${BACKBLAZE_WGET} "${BACKBLAZE_PATH}/${IMDB_ID}/poster.jpg" -O $@ \
+		|| ${BACKBLAZE_WGET} "${BACKBLAZE_PATH}/$*/poster.jpg" -O $@ \
 		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
 	[[ -s $@ ]] || rm -f $@   # delete downloaded file if it has a zero-length

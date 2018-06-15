@@ -2,7 +2,7 @@ SHELL = /bin/bash
 include ./secrets.mk
 include ./bb_token.mk
 
-BACKBLAZE_WGET = curl -H 'Authorization: ${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN}'
+BACKBLAZE_WGET = wget --header='Authorization: ${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN}'
 BACKBLAZE_PATH = ${BACKBLAZE_API_URL}/file/${BACKBLAZE_MOVIE_BUCKET}
 
 POSTER_HEIGHT = 900

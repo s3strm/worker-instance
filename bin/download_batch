@@ -12,6 +12,15 @@ BATCH_SIZE=5
 MOVIE_DIR=$(readlink -f "${ROOT_DIR}/outgoing")
 SHUF_CMD=$(command -v shuf || command -v gshuf)
 
+## get the download_now.txt
+if [[ -f /tmp/download_now.txt ]]; then
+  for imdb_id in $(cat /tmp/download_now.txt); do
+    [[ -d "${MOVIE_DIR}/${imdb_id}" ]] && continue
+    ${ROOT_DIR}/bin/downloader ${imdb_id}
+  done
+fi
+
+# grab some randoms
 for imdb_id in $(${SHUF_CMD} ${ROOT_DIR}/etc/movies.txt | head -n${BATCH_SIZE}); do
   [[ -d "${MOVIE_DIR}/${imdb_id}" ]] && continue
   ${ROOT_DIR}/bin/downloader ${imdb_id}

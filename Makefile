@@ -6,31 +6,26 @@ BACKBLAZE_WGET = wget --header='Authorization: ${BACKBLAZE_ACCOUNT_AUTHORIZATION
 BACKBLAZE_PATH = ${BACKBLAZE_API_URL}/file/${BACKBLAZE_MOVIE_BUCKET}
 
 POSTER_HEIGHT = 900
-.PRECIOUS: \
-  outgoing/%/ffprobe.txt \
-  outgoing/%/video.nfo \
-  outgoing/%/kodi.strm \
-  outgoing/%/omdb.json \
-  outgoing/%/poster.jpg \
-  outgoing/%/video.mp4
-
-.PHONY: import export outgoing/% upload/%
 
 EXPORTABLE_FILES = $(wildcard ${INCOMING_DIR}/tt*)
 UPLOADABLE_FILES = $(wildcard ./outgoing/tt*/*)
 
 # populate `import/` with data from the ftp server
+.PHONY: import
 import:
 	./bin/ftp_import
 
+.PHONY: download_batch
 download_batch:
 	./bin/download_batch
 	$(MAKE) update_library
 
+.PHONY: update_library
 update_library:
 	-/usr/bin/kodi-send --action "UpdateLibrary(video)"
 
 # populate `export/` with data from `import/`
+.PHONY: export
 export:
 ifneq (,${EXPORTABLE_FILES})
 	for f in ${EXPORTABLE_FILES}; do              \
@@ -39,6 +34,7 @@ ifneq (,${EXPORTABLE_FILES})
 	$(MAKE) update_library
 endif
 
+.PHONY: upload
 upload:
 	for f in ${UPLOADABLE_FILES}; do              \
 		./bin/upload_from_outgoing $$f || exit 1;  \
@@ -58,21 +54,29 @@ outgoing/%/video.en.srt:
 	[[ -s $@ ]] || rm -f $@   # delete downloaded file has a zero-length
 	[[ -f ${INCOMING_DIR}/$*.srt ]] && mv ${INCOMING_DIR}/$*.srt $@
 
+.DELETE_ON_ERROR: outgoing/%/ffprobe.txt
+.PRECIOUS: outgoing/%/ffprobe.txt
 outgoing/%/ffprobe.txt: outgoing/%/video.mp4
 	mkdir -p outgoing/$*
 	ffprobe -i "$<" -show_entries stream > "$@" 2> /dev/null
+	[[ -s $@ ]]
 
+.DELETE_ON_ERROR: outgoing/%/omdb.json
+.PRECIOUS: outgoing/%/omdb.json
 outgoing/%/omdb.json:
 	mkdir -p outgoing/$*
 	curl "http://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=$*&plot=full&r=json" \
 		2> /dev/null | jq . > $@
 	[[ $$(jq -r .Title $@) != 'null' ]] || rm $@
-	[[ -f $@ ]]
+	[[ -s $@ ]]
 
+.DELETE_ON_ERROR: outgoing/%/video.nfo
+.PRECIOUS: outgoing/%/video.nfo
 outgoing/%/video.nfo: outgoing/%/omdb.json outgoing/%/ffprobe.txt
 	mkdir -p outgoing/$*
 	./bin/kodi_nfo_generator $* > $@
 
+.PRECIOUS: outgoing/%/kodi.strm
 outgoing/%/kodi.strm: outgoing/%/ffprobe.txt outgoing/%/omdb.json
 	mkdir -p outgoing/$*
 	echo -n '#EXTINF:' > $@
@@ -81,9 +85,11 @@ outgoing/%/kodi.strm: outgoing/%/ffprobe.txt outgoing/%/omdb.json
 	jq -r .Title outgoing/$*/omdb.json >> $@
 	echo "${S3STRM_ADDR}/$*/video.mp4" >> $@
 
+.DELETE_ON_ERROR: outgoing/%/poster.jpg
+.PRECIOUS: outgoing/%/poster.jpg
 outgoing/%/poster.jpg:
 	mkdir -p outgoing/$*
 	-mv ${INCOMING_DIR}/$*.jpg $@ \
 		|| ${BACKBLAZE_WGET} "${BACKBLAZE_PATH}/$*/poster.jpg" -O $@ \
 		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
-	[[ -s $@ ]] || rm -f $@   # delete downloaded file if it has a zero-length
+	[[ -s $@ ]]

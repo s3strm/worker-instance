@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+ROOT_DIR="$(dirname $0)/../"
+
+usage() {
+  echo "$0 <imdb_id> <url>"
+}
+
+IMDB_ID=$1
+URL=$2
+
+[[ $# -ne 2 ]] && usage && exit 1
+
+wget ${URL} -O ${ROOT_DIR}/outgoing/${IMDB_ID}/poster.jpg

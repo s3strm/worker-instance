@@ -9,6 +9,8 @@ fi
 
 IMDB_ID=$1
 [[ -f "${ROOT_DIR}/outcoing/${IMDB_ID}/video.mp4" ]] && exit 0
+[[ -f "/mnt/disk1/movies/${IMDB_ID}/video.mp4" ]] && exit 0
+[[ -f "/mnt/disk2/movies/${IMDB_ID}/video.mp4" ]] && exit 0
 trap "rm -f ${ROOT_DIR}/incoming/${IMDB_ID}.*" SIGINT SIGTERM
 
 wget "${BACKBLAZE_API_URL}/file/${BACKBLAZE_MOVIE_BUCKET}/${IMDB_ID}/video.mp4?Authorization=${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN}" \

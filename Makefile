@@ -41,6 +41,7 @@ upload:
 	done
 	cp -aux ./outgoing/* ./kodi/library/
 
+.PRECIOUS: outgoing/%/video.mp4
 outgoing/%/video.mp4:
 	mkdir -p outgoing/$*
 	mv ${INCOMING_DIR}/$*.mp4 $@ \
@@ -48,6 +49,7 @@ outgoing/%/video.mp4:
 		|| ffmpeg -y -fflags +genpts -i "${INCOMING_DIR}/$*.mkv" -c copy "$@"
 	rm -f ${INCOMING_DIR}/$*.avi ${INCOMING_DIR}/$*.mkv
 
+.PRECIOUS: outgoing/%/video.en.srt
 outgoing/%/video.en.srt:
 	mkdir -p outgoing/$*
 	-${BACKBLAZE_WGET} "${BACKBLAZE_PATH}/$*/video.en.srt" -O $@
@@ -55,14 +57,12 @@ outgoing/%/video.en.srt:
 	[[ -f ${INCOMING_DIR}/$*.srt ]] && mv ${INCOMING_DIR}/$*.srt $@
 
 .DELETE_ON_ERROR: outgoing/%/ffprobe.txt
-.PRECIOUS: outgoing/%/ffprobe.txt
 outgoing/%/ffprobe.txt: outgoing/%/video.mp4
 	mkdir -p outgoing/$*
 	ffprobe -i "$<" -show_entries stream > "$@" 2> /dev/null
 	[[ -s $@ ]]
 
 .DELETE_ON_ERROR: outgoing/%/omdb.json
-.PRECIOUS: outgoing/%/omdb.json
 outgoing/%/omdb.json:
 	mkdir -p outgoing/$*
 	curl "http://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=$*&plot=full&r=json" \
@@ -71,7 +71,6 @@ outgoing/%/omdb.json:
 	[[ -s $@ ]]
 
 .DELETE_ON_ERROR: outgoing/%/video.nfo
-.PRECIOUS: outgoing/%/video.nfo
 outgoing/%/video.nfo: outgoing/%/omdb.json outgoing/%/ffprobe.txt
 	mkdir -p outgoing/$*
 	./bin/kodi_nfo_generator $* > $@
@@ -86,10 +85,8 @@ outgoing/%/kodi.strm: outgoing/%/ffprobe.txt outgoing/%/omdb.json
 	echo "${S3STRM_ADDR}/$*/video.mp4" >> $@
 
 .DELETE_ON_ERROR: outgoing/%/poster.jpg
-.PRECIOUS: outgoing/%/poster.jpg
 outgoing/%/poster.jpg:
 	mkdir -p outgoing/$*
-	-mv ${INCOMING_DIR}/$*.jpg $@ \
+	mv ${INCOMING_DIR}/$*.jpg $@ \
 		|| ${BACKBLAZE_WGET} "${BACKBLAZE_PATH}/$*/poster.jpg" -O $@ \
-		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@ \
-	[[ -s $@ ]]
+		|| wget "http://img.omdbapi.com/?i=$*&apikey=${OMDB_API_KEY}&h=${POSTER_HEIGHT}" -O $@

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+ROOT_DIR="$(dirname $0)/../"
+source "${ROOT_DIR}/etc/settings"
+
+IFS=$'\n'
+for data in $(cat ${ROOT_DIR}/etc/torrent_queue.txt); do
+  imdb_id=$(echo ${data} | awk '{ print $1 }')
+  url=$(echo ${data} | awk '{ print $2 }')
+  ext=$(echo ${url} | rev | cut -d. -f1 | rev)
+  [[ -d "${MOVIE_DIR}/${imdb_id}" ]] && continue
+  [[ -f "${ROOT_DIR}/${imdb_id}.${ext}" ]] && continue
+
+  wget ${url} -O ${ROOT_DIR}/incoming/${imdb_id}.${ext}
+done

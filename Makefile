@@ -10,10 +10,9 @@ POSTER_HEIGHT = 900
 EXPORTABLE_FILES = $(wildcard ${INCOMING_DIR}/tt*)
 UPLOADABLE_FILES = $(wildcard ./outgoing/tt*/*)
 
-# populate `import/` with data from the ftp server
-.PHONY: import
-import:
-	./bin/ftp_import
+.PHONY: wget_from_list
+wget_from_list:
+	./bin/wget_from_list
 
 .PHONY: download_batch
 download_batch:

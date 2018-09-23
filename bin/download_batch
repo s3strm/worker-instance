@@ -8,7 +8,7 @@ if [[ -z ${BACKBLAZE_ACCOUNT_AUTHORIZATION_TOKEN} ]] || [[ -z ${BACKBLAZE_API_UR
   export BACKBLAZE_API_URL
 fi
 
-BATCH_SIZE=5
+BATCH_SIZE=7
 MOVIE_DIR=$(readlink -f "${ROOT_DIR}/outgoing")
 SHUF_CMD=$(command -v shuf || command -v gshuf)
 
@@ -19,6 +19,16 @@ if [[ -f /tmp/download_now.txt ]]; then
     ${ROOT_DIR}/bin/downloader ${imdb_id}
   done
 fi
+
+for data in $(cat ${ROOT_DIR}/etc/torrent_queue.txt); do
+  imdb_id=$(echo ${data} | awk '{ print $1 }')
+  url=$(echo ${data} | awk '{ print $2 }')
+  ext=$(echo ${url} | rev | cut -d. -f1 | rev)
+  [[ -d "${MOVIE_DIR}/${imdb_id}" ]] && continue
+  [[ -f "${ROOT_DIR}/${imdb_id}.${ext}" ]] && continue
+
+  wget ${url} -O ${ROOT_DIR}/incoming/${imdb_id}.${ext}
+done
 
 # grab some randoms
 for imdb_id in $(${SHUF_CMD} ${ROOT_DIR}/etc/movies.txt | head -n${BATCH_SIZE}); do
